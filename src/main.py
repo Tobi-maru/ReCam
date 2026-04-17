@@ -18,7 +18,7 @@ def main():
 
     print("Starting stream... Press Ctrl+C to stop.")
     try:
-        adb.start_stream(v4l2.ping())
+        adb.start_stream(v4l2.get_info())
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
