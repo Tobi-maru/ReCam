@@ -1,0 +1,17 @@
+[Unit]
+Description=ReCam V4L2 Loopback Setup
+
+DefaultDependencies=no
+After=local-fs.target
+
+[Service]
+Type=oneshot
+
+ExecStart=-/usr/bin/modprobe v4l2loopback devices=1 video_nr=9 card_label="ReCam" exclusive_caps=1
+
+RemainAfterExit=yes
+
+ExecStop=/usr/bin/modprobe -r v4l2loopback
+
+[Install]
+WantedBy=multi-user.target

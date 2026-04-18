@@ -1,0 +1,5 @@
+# Detect any Android device in ADB mode and trigger the mapping script
+SUBSYSTEM=="usb", ATTR{idVendor}=="*", ATTR{idProduct}=="*", ENV{ID_USB_INTERFACE_NUM}=="*", RUN+="/usr/local/bin/recam-map-triggers.sh"
+
+# Also ensure the user has permission to access the device without sudo
+SUBSYSTEM=="usb", ATTR{idVendor}=="*", MODE="0666", GROUP="plugdev"
