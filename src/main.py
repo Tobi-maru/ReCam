@@ -1,6 +1,7 @@
 from adb_services import adbManager
 from v4l2 import v4l2Manager
 import time
+import sys
 
 def main():
     v4l2 = v4l2Manager()
@@ -8,22 +9,68 @@ def main():
 
     print("--- ReCam Dev Boot ---")
 
-    if not v4l2.ping():
-        print("Error: /dev/video9 not found. Did you run modprobe?")
-        return
+    print("--- ReCam Engine: Active ---")
 
-    if not adb.check_adb():
-        print("Error: No phone detected via ADB.")
-        return
+    # 1. Pre-flight Check: Is the placeholder ready?
+    if not v4l2.check_placeholder():
+        print("ERROR: /dev/video9 placeholder not found.")
+        print("Please run: sudo ./install.sh")
+        sys.exit(1)
 
-    print("Starting stream... Press Ctrl+C to stop.")
+    print(f"Placeholder /dev/video9 is active ({v4l2.get_device_label()})")
+    print("Waiting for phone connection...")
+
+
+    waiting_for_auth = False
+
     try:
-        adb.start_stream(v4l2.get_info())
         while True:
+            # Check if a process is ALREADY running
+            is_streaming = adb.process is not None and adb.process.poll() is None
+
+            has_event = adb.check_for_event()
+
+            # 2. Event Detection: Look for events or retry authorization if we AREN'T streaming
+            if not is_streaming and (has_event or waiting_for_auth):
+                status = adb.get_adb_status()
+                
+                if status == "authorized":
+                    if has_event: print("\n[Hardware Event] Phone detected via USB.")
+                    print("ADB Authorized. Starting stream...")
+                    adb.start_stream(v4l2.device_path)
+                    waiting_for_auth = False
+                    
+                elif status == "unauthorized":
+                    if has_event or not waiting_for_auth:
+                        print("\n[Hardware Event] Phone detected via USB.")
+                        print("Waiting for ADB authorization... Please check your phone screen.")
+                    waiting_for_auth = True
+                    
+                elif status == "no_device":
+                    if has_event:
+                        print("\n[Hardware Event] Phone detected via USB.")
+                        print("ERROR: ADB cannot see the phone. Ensure USB Debugging is ON and USB mode is File Transfer/PTP.")
+                    waiting_for_auth = False
+                else:
+                    if has_event:
+                        print(f"ERROR: Phone not ready (status: {status}).")
+                    waiting_for_auth = False
+
+            # 3. Process Monitoring: If it WAS running but just stopped
+            if adb.process is not None and adb.process.poll() is not None:
+                print("\n[Stream Ended] Process exited.")
+                adb.stop_stream()
+                adb.process = None # Reset the handle!
+                print("Waiting for re-connection...")
+
             time.sleep(1)
+            
     except KeyboardInterrupt:
+        print("\nEngine stopped by user.")
+    
+    finally :
         adb.stop_stream()
-        print("\nStream stopped safely.")
+        print("Stream stopped safely.")
 
 if __name__ == "__main__":
     main()
