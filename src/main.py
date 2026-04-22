@@ -18,10 +18,22 @@ def main():
         sys.exit(1)
 
     print(f"Placeholder /dev/video9 is active ({v4l2.get_device_label()})")
-    print("Waiting for phone connection...")
 
-
+    # --- Startup Check: Detect an already-connected device ---
+    print("Checking for already-connected device...")
+    startup_status = adb.get_adb_status()
     waiting_for_auth = False
+
+    if startup_status == "authorized":
+        print("Phone already connected and authorized. Starting stream...")
+        adb.start_stream(v4l2.device_path)
+    elif startup_status == "unauthorized":
+        print("Phone connected but NOT authorized. Please check your phone screen.")
+        waiting_for_auth = True
+    elif startup_status == "no_device":
+        print("No phone detected. Waiting for phone connection...")
+    else:
+        print(f"Unknown ADB status: {startup_status}. Waiting for phone connection...")
 
     try:
         while True:
