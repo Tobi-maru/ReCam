@@ -55,6 +55,9 @@ class adbManager:
             "--capture-orientation=0",
             f"--v4l2-sink={device_path}",
             "--no-playback",
+            "--no-window",
+            "--no-control",
+            "--no-audio",
             # "--turn-screen-off"
         ]
 
