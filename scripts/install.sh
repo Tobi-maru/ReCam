@@ -46,5 +46,10 @@ else
   echo "Warning: /dev/video9 is not present. You may need to reboot your machine."
 fi
 
+# 5. Install Launcher Command
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+echo "[5/5] Installing recam launcher command..."
+install -m 755 "$PROJECT_ROOT/recam" /usr/local/bin/recam
+
 echo "--- Installation Complete ---"
-echo "You can now start the engine by running: python3 src/main.py"
+echo "You can now start the engine by running: recam"

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# ReCam Launcher
+# Starts the ReCam engine with all prerequisite checks
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# --- Dependency Checks ---
+check_dependency() {
+    if ! command -v "$1" &> /dev/null; then
+        echo "Error: '$1' is not installed."
+        echo "Please run the install script first:"
+        echo "  sudo ./scripts/install.sh"
+        exit 1
+    fi
+}
+
+echo "--- ReCam Launcher ---"
+
+check_dependency python3
+check_dependency adb
+check_dependency scrcpy
+check_dependency v4l2-ctl
+
+# --- v4l2loopback Check ---
+if [ ! -c /dev/video9 ]; then
+    echo "Virtual camera /dev/video9 not found. Attempting to load module..."
+    
+    if command -v sudo &> /dev/null; then
+        sudo modprobe v4l2loopback devices=1 video_nr=9 card_label="ReCam" exclusive_caps=1 || true
+        sleep 1
+    fi
+    
+    if [ ! -c /dev/video9 ]; then
+        echo "Error: Could not create /dev/video9."
+        echo "Please run: sudo ./scripts/install.sh"
+        exit 1
+    fi
+fi
+
+V4L2_INFO=$(v4l2-ctl -d /dev/video9 --info 2>/dev/null) || true
+if echo "$V4L2_INFO" | grep -q "ReCam"; then
+    echo "Virtual camera /dev/video9 is active (ReCam)"
+else
+    echo "Virtual camera /dev/video9 is active"
+fi
+
+# --- Start Engine ---
+cd "$SCRIPT_DIR"
+echo "Starting ReCam Engine..."
+exec python3 src/main.py
