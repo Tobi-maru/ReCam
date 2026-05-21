@@ -156,7 +156,7 @@ Please include logs/screenshots when reporting device/driver issues.
 
 ## License
 
-No license file is currently included in this repository. Add a `LICENSE` file to define reuse and distribution terms for contributors/users.
+This repository currently does **not** include a `LICENSE` file. Until a license is added by the maintainers, usage, modification, and redistribution are not granted by default (all rights reserved).
 
 ## Acknowledgements
 
