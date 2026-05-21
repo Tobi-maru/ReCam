@@ -5,8 +5,6 @@ ReCam repurposes old Android phones as webcams on Linux by combining:
 - [`scrcpy`](https://github.com/Genymobile/scrcpy) to read the Android camera stream through ADB
 - [`v4l2loopback`](https://github.com/umlaeute/v4l2loopback) to expose that stream as a virtual webcam device (default: `/dev/video9`)
 
-The repository is primarily Python (65.1%) with Shell scripts (34.9%) for system setup and launch.
-
 ## Main Features
 
 - Turn an Android phone into a reusable USB webcam source
@@ -132,15 +130,6 @@ In OBS/Discord/Meet/Zoom (Linux clients), select video device:
   - Confirm stream is running in terminal
   - Check with `v4l2-ctl -d /dev/video9 --info`
   - Restart the target app after ReCam is started
-
-## Project Structure
-
-- `src/main.py` — Main engine loop and startup checks
-- `src/adb_services.py` — ADB status detection and scrcpy stream launch
-- `src/v4l2.py` — Virtual camera checks and metadata helpers
-- `scripts/install.sh` — Installer for dependencies/services/launcher
-- `deploy/` — udev trigger script, udev rules, and loopback systemd service
-- `recam` — User-facing launcher command
 
 ## Contributing
 
