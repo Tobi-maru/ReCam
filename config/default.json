@@ -1,0 +1,10 @@
+{
+  "camera_facing": "back",
+  "camera_size": "1920x1080",
+  "video_codec": "h265",
+  "capture_orientation": 0,
+  "turn_screen_off": false,
+  "device_path": "/dev/video9",
+  "auto_start_stream": true,
+  "preview_enabled": true
+}

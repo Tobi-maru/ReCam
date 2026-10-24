@@ -45,21 +45,24 @@ class adbManager:
         lines = result.stdout.strip().split('\n')
         return len(lines) >1
 
-    def start_stream(self, device_path):
+    def start_stream(self, device_path, settings=None):
+        s = settings or {}
         cmd = [
             "scrcpy",
             "--video-source=camera",
-            "--camera-facing=back",
-            "--video-codec=h265",
-            "--camera-size=1920x1080",
-            "--capture-orientation=0",
+            f"--camera-facing={s.get('camera_facing', 'back')}",
+            f"--video-codec={s.get('video_codec', 'h265')}",
+            f"--camera-size={s.get('camera_size', '1920x1080')}",
+            f"--capture-orientation={s.get('capture_orientation', 0)}",
             f"--v4l2-sink={device_path}",
             "--no-playback",
             "--no-window",
             "--no-control",
             "--no-audio",
-            # "--turn-screen-off"
         ]
+
+        if s.get("turn_screen_off", False):
+            cmd.append("--turn-screen-off")
 
 
         curr_env = os.environ.copy()
